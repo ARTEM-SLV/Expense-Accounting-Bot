@@ -17,7 +17,7 @@ type Config struct {
 func LoadConfig() *Config {
 	// Загружаем переменные из .env файла
 	if err := godotenv.Load(); err != nil {
-		log.Println("Не удалось загрузить .env файл, будут использованы переменные окружения")
+		log.Fatal("Не удалось загрузить .env файл, будут использованы переменные окружения", err)
 	}
 
 	cfg := &Config{

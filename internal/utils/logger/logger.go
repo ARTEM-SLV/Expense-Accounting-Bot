@@ -11,16 +11,20 @@ type Logger struct {
 	file *os.File
 }
 
-// NewLogger инициализирует новый логгер с записью в файл
-func NewLogger(filepath string) (*Logger, error) {
+var L *Logger
+
+// InitLogger инициализирует новый логгер с записью в файл
+func InitLogger(filepath string) error {
 	file, err := os.OpenFile(filepath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	log.SetOutput(file) // Перенаправляем стандартный вывод логов в файл
 
-	return &Logger{file: file}, nil
+	L = &Logger{file: file}
+
+	return nil
 }
 
 // Info записывает информационное сообщение

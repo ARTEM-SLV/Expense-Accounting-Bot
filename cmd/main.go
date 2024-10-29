@@ -16,16 +16,16 @@ func main() {
 
 	// Инициализируем логгер
 	logPath := "bot.log" // Путь к файлу для логов
-	logs, err := logger.NewLogger(logPath)
+	err := logger.InitLogger(logPath)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer logs.Close()
+	defer logger.L.Close()
 
 	// Инициализация бота
-	err = bot.InitBot()
+	err = bot.InitStringValues()
 	if err != nil {
-		logs.Error("Ошибка при инициализации бота:", err)
+		log.Fatal("Ошибка при инициализации бота:", err)
 	}
 
 	// Инициализация бота
@@ -34,14 +34,13 @@ func main() {
 		Poller: &telebot.LongPoller{Timeout: 10 * time.Second},
 	})
 	if err != nil {
-		logs.Error("Ошибка при создании бота: ", err)
-		return
+		log.Fatal("Ошибка при создании бота: ", err)
 	}
 
 	// Создаем объект нашего бота с логгером
-	expenseBot := bot.NewExpenseBot(b, logs)
+	expenseBot := bot.NewExpenseBot(b)
 
 	// Запускаем бота
-	logs.Info("Запуск бота...")
+	logger.L.Info("Запуск бота...")
 	expenseBot.Start()
 }

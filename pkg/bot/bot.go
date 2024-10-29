@@ -7,8 +7,8 @@ import (
 	"os"
 )
 
-var BtnTitlesList BtnTitles
-var MessagesList Messages
+var BtnTitlesList *BtnTitles
+var MessagesList *Messages
 
 // Bot интерфейс для бота, поддерживающий различные мессенджеры
 type Bot interface {
@@ -18,26 +18,38 @@ type Bot interface {
 }
 
 type BtnTitles struct {
-	BtnMenu       string `json:"btn_menu"`
-	BtnBack       string `json:"btn_back"`
-	BtnHelp       string `json:"btn_help"`
-	BtnMyExpenses string `json:"btn_my_expenses"`
+	BtnMenu string `json:"btn_menu"`
+	BtnBack string `json:"btn_back"`
+	BtnHelp string `json:"btn_help"`
+
 	BtnNewExpense string `json:"btn_new_expense"`
+	BtnMyExpenses string `json:"btn_my_expenses"`
+
+	BtnGroceries     string `json:"btn_groceries"`
+	BtnBeauty        string `json:"btn_beauty"`
+	BtnHealth        string `json:"btn_health"`
+	BtnRestaurants   string `json:"btn_restaurants"`
+	BtnEntertainment string `json:"btn_entertainment"`
+	BtnGrowth        string `json:"btn_growth"`
+	BtnTrips         string `json:"btn_trips"`
+	BtnOther         string `json:"btn_other"`
 }
 
 type Messages struct {
-	Welcome string `json:"welcome"`
+	Welcome      string `json:"welcome"`
+	SelectAction string `json:"select_action"`
+	Category     string `json:"category"`
 }
 
-func InitBot() error {
+func InitStringValues() error {
 	// Загружаем заголовки кнопок
-	err := loadBtnTitles("./config/button_titles.json")
+	err := loadBtnTitles()
 	if err != nil {
 		return err
 	}
 
 	// Загружаем сообщения бота
-	err = loadMessages("./config/messages.json")
+	err = loadMessages()
 	if err != nil {
 		return err
 	}
@@ -45,7 +57,9 @@ func InitBot() error {
 	return nil
 }
 
-func loadBtnTitles(filePath string) error {
+func loadBtnTitles() error {
+	filePath := "./config/button_titles.json"
+
 	file, err := os.Open(filePath)
 	if err != nil {
 		return err
@@ -59,7 +73,9 @@ func loadBtnTitles(filePath string) error {
 	return nil
 }
 
-func loadMessages(filePath string) error {
+func loadMessages() error {
+	filePath := "./config/messages.json"
+
 	file, err := os.Open(filePath)
 	if err != nil {
 		return err
