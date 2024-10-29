@@ -1,13 +1,14 @@
 package main
 
 import (
-	"expense_accounting_bot/pkg/bot"
 	"log"
 	"time"
 
+	"github.com/tucnak/telebot"
+
 	"expense_accounting_bot/config"
 	"expense_accounting_bot/internal/utils/logger"
-	"github.com/tucnak/telebot"
+	"expense_accounting_bot/pkg/bot"
 )
 
 func main() {

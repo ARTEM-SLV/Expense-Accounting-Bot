@@ -4,6 +4,7 @@ import (
 	"expense_accounting_bot/internal/utils/logger"
 	"fmt"
 	"github.com/tucnak/telebot"
+	"reflect"
 )
 
 // ExpenseBot структура для бота с телеграмом
@@ -70,25 +71,39 @@ func btnNewExpenseFunc(e *ExpenseBot, menu *telebot.ReplyMarkup) func(*telebot.C
 
 		menu.InlineKeyboard = nil
 
+		val := reflect.ValueOf(BtnCategoriesList)
+		typ := reflect.TypeOf(BtnCategoriesList)
 		row := make([]telebot.InlineButton, 0, 2)
-		addBtnOfCategory(&row, "btn_groceries", BtnTitlesList.BtnGroceries)
-		addBtnOfCategory(&row, "btn_beauty", BtnTitlesList.BtnBeauty)
-		menu.InlineKeyboard = append(menu.InlineKeyboard, row)
+		for i := 0; i < val.NumField(); i++ {
+			unique := typ.Field(i).Name             // Получаем описание поля
+			text := fmt.Sprintf("%v", val.Field(i)) // Получаем значение поля
+			addBtnOfCategory(&row, e, unique, text)
 
-		row = make([]telebot.InlineButton, 0, 2)
-		addBtnOfCategory(&row, "btn_health", BtnTitlesList.BtnHealth)
-		addBtnOfCategory(&row, "btn_restaurants", BtnTitlesList.BtnRestaurants)
-		menu.InlineKeyboard = append(menu.InlineKeyboard, row)
+			if len(row) == 2 {
+				menu.InlineKeyboard = append(menu.InlineKeyboard, row)
+				row = make([]telebot.InlineButton, 0, 2)
+			}
+		}
 
-		row = make([]telebot.InlineButton, 0, 2)
-		addBtnOfCategory(&row, "btn_entertainment", BtnTitlesList.BtnEntertainment)
-		addBtnOfCategory(&row, "btn_growth", BtnTitlesList.BtnGrowth)
-		menu.InlineKeyboard = append(menu.InlineKeyboard, row)
-
-		row = make([]telebot.InlineButton, 0, 2)
-		addBtnOfCategory(&row, "btn_trips", BtnTitlesList.BtnTrips)
-		addBtnOfCategory(&row, "btn_other", BtnTitlesList.BtnOther)
-		menu.InlineKeyboard = append(menu.InlineKeyboard, row)
+		//row := make([]telebot.InlineButton, 0, 2)
+		//addBtnOfCategory(&row, "btn_groceries", BtnCategoriesList.BtnGroceries)
+		//addBtnOfCategory(&row, "btn_beauty", BtnCategoriesList.BtnBeauty)
+		//menu.InlineKeyboard = append(menu.InlineKeyboard, row)
+		//
+		//row = make([]telebot.InlineButton, 0, 2)
+		//addBtnOfCategory(&row, "btn_health", BtnCategoriesList.BtnHealth)
+		//addBtnOfCategory(&row, "btn_restaurants", BtnCategoriesList.BtnRestaurants)
+		//menu.InlineKeyboard = append(menu.InlineKeyboard, row)
+		//
+		//row = make([]telebot.InlineButton, 0, 2)
+		//addBtnOfCategory(&row, "btn_entertainment", BtnCategoriesList.BtnEntertainment)
+		//addBtnOfCategory(&row, "btn_growth", BtnCategoriesList.BtnGrowth)
+		//menu.InlineKeyboard = append(menu.InlineKeyboard, row)
+		//
+		//row = make([]telebot.InlineButton, 0, 2)
+		//addBtnOfCategory(&row, "btn_trips", BtnCategoriesList.BtnTrips)
+		//addBtnOfCategory(&row, "btn_other", BtnCategoriesList.BtnOther)
+		//menu.InlineKeyboard = append(menu.InlineKeyboard, row)
 
 		btnBack := telebot.InlineButton{
 			Unique: "btn_back",
@@ -104,12 +119,19 @@ func btnNewExpenseFunc(e *ExpenseBot, menu *telebot.ReplyMarkup) func(*telebot.C
 	}
 }
 
-func addBtnOfCategory(row *[]telebot.InlineButton, unique string, text string) {
-	btnGroceries := telebot.InlineButton{
+func addBtnOfCategory(row *[]telebot.InlineButton, e *ExpenseBot, unique string, text string) {
+	newBtn := telebot.InlineButton{
 		Unique: unique,
 		Text:   text,
 	}
-	*row = append(*row, btnGroceries)
+
+	// Обработчик категории
+	e.bot.Handle(newBtn, func(c *telebot.Callback) {
+		e.bot.Respond(c, &telebot.CallbackResponse{Text: fmt.Sprintf("Вы выбрали категорию: %s", text)})
+		e.bot.Send(c.Sender, "Введите сумму расхода:")
+	})
+
+	*row = append(*row, newBtn)
 }
 
 // Обработчик нажатия кнопки "Мои расходы"

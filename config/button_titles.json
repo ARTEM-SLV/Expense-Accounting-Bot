@@ -4,14 +4,5 @@
   "btn_help": "❔ Помощь",
 
   "btn_new_expense": "\uD83D\uDCB5 Новый расход",
-  "btn_my_expenses": "\uD83D\uDCC8 Мои расходы",
-
-  "btn_groceries": "\uD83C\uDF5E Продукты",
-  "btn_beauty": "\uD83D\uDC85 Красота",
-  "btn_health": "\uD83C\uDFCB\uFE0F Здоровье",
-  "btn_restaurants": "\uD83C\uDF7D\uFE0F Рестораны",
-  "btn_entertainment": "\uD83E\uDD38 Развлечения",
-  "btn_growth": "\uD83E\uDDD8 Развитие",
-  "btn_trips": "\uD83C\uDFDD\uFE0F Отдых",
-  "btn_other": "\uD83D\uDCB3 Прочие..."
+  "btn_my_expenses": "\uD83D\uDCC8 Мои расходы"
 }

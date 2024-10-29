@@ -2,12 +2,14 @@ package bot
 
 import (
 	"encoding/json"
-	"github.com/tucnak/telebot"
 	"io"
 	"os"
+
+	"github.com/tucnak/telebot"
 )
 
 var BtnTitlesList *BtnTitles
+var BtnCategoriesList *BtnCategories
 var MessagesList *Messages
 
 // Bot интерфейс для бота, поддерживающий различные мессенджеры
@@ -24,7 +26,9 @@ type BtnTitles struct {
 
 	BtnNewExpense string `json:"btn_new_expense"`
 	BtnMyExpenses string `json:"btn_my_expenses"`
+}
 
+type BtnCategories struct {
 	BtnGroceries     string `json:"btn_groceries"`
 	BtnBeauty        string `json:"btn_beauty"`
 	BtnHealth        string `json:"btn_health"`
@@ -44,6 +48,12 @@ type Messages struct {
 func InitStringValues() error {
 	// Загружаем заголовки кнопок
 	err := loadBtnTitles()
+	if err != nil {
+		return err
+	}
+
+	// Загружаем сообщения бота
+	err = loadBtnCategories()
 	if err != nil {
 		return err
 	}
@@ -69,6 +79,22 @@ func loadBtnTitles() error {
 	byteValue, _ := io.ReadAll(file)
 
 	json.Unmarshal(byteValue, &BtnTitlesList)
+
+	return nil
+}
+
+func loadBtnCategories() error {
+	filePath := "./config/buttons_categories.json"
+
+	file, err := os.Open(filePath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	byteValue, _ := io.ReadAll(file)
+
+	json.Unmarshal(byteValue, &BtnCategoriesList)
 
 	return nil
 }
