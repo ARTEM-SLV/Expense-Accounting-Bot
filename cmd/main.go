@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"log"
 	"time"
 
@@ -9,6 +10,7 @@ import (
 	"expense_accounting_bot/config"
 	"expense_accounting_bot/internal/utils/logger"
 	"expense_accounting_bot/pkg/bot"
+	"expense_accounting_bot/pkg/repository"
 )
 
 func main() {
@@ -22,6 +24,19 @@ func main() {
 		log.Fatal(err)
 	}
 	defer logger.L.Close()
+
+	// Подключаемся к SQLite
+	db, err := sql.Open("sqlite", "./expenses.db")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	// Инициализируем репозиторий
+	repo := repository.NewSQLiteExpenseRepository(db)
+	if err = repo.InitSchema(); err != nil {
+		log.Fatalf("Ошибка при инициализации схемы: %v", err)
+	}
 
 	// Инициализация бота
 	err = bot.InitStringValues()
@@ -39,7 +54,7 @@ func main() {
 	}
 
 	// Создаем объект нашего бота с логгером
-	expenseBot := bot.NewExpenseBot(b)
+	expenseBot := bot.NewExpenseBot(b, repo)
 
 	// Запускаем бота
 	logger.L.Info("Запуск бота...")

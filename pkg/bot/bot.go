@@ -4,19 +4,20 @@ import (
 	"encoding/json"
 	"io"
 	"os"
-
-	"github.com/tucnak/telebot"
 )
 
 var BtnTitlesList *BtnTitles
-var BtnCategoriesList *BtnCategories
 var MessagesList *Messages
+var BtnCategoriesList = make(map[string]string, 8)
+var BtnPeriodsList = make(map[string]string, 6)
+var Categories = [8]string{"btn_groceries", "btn_beauty", "btn_health", "btn_restaurants", "btn_entertainment", "btn_growth", "btn_trips", "btn_other"}
+var Periods = [6]string{"period_day", "period_week", "period_month", "period_quarter", "period_halfyear", "period_year"}
+
+//var Categories map[string]string
 
 // Bot интерфейс для бота, поддерживающий различные мессенджеры
 type Bot interface {
 	Start()
-	Handle(command string, handler func(*telebot.Message))
-	Send(recipient *telebot.User, message string)
 }
 
 type BtnTitles struct {
@@ -28,21 +29,18 @@ type BtnTitles struct {
 	BtnMyExpenses string `json:"btn_my_expenses"`
 }
 
-type BtnCategories struct {
-	BtnGroceries     string `json:"btn_groceries"`
-	BtnBeauty        string `json:"btn_beauty"`
-	BtnHealth        string `json:"btn_health"`
-	BtnRestaurants   string `json:"btn_restaurants"`
-	BtnEntertainment string `json:"btn_entertainment"`
-	BtnGrowth        string `json:"btn_growth"`
-	BtnTrips         string `json:"btn_trips"`
-	BtnOther         string `json:"btn_other"`
-}
-
 type Messages struct {
-	Welcome      string `json:"welcome"`
-	SelectAction string `json:"select_action"`
-	Category     string `json:"category"`
+	Welcome        string `json:"welcome"`
+	SelectAction   string `json:"select_action"`
+	SelectCategory string `json:"select_category"`
+	EnterAmount    string `json:"enter_amount"`
+	AddedExpense   string `json:"added_expense"`
+	UnknownAction  string `json:"unknown_action"`
+	NumberError    string `json:"number_error"`
+	SelectPeriod   string `json:"select_period"`
+	Category       string `json:"category"`
+	ErrorReg       string `json:"error_reg"`
+	UserRegistered string `json:"user_registered"`
 }
 
 func InitStringValues() error {
@@ -52,8 +50,14 @@ func InitStringValues() error {
 		return err
 	}
 
-	// Загружаем сообщения бота
+	// Загружаем заголовки кнопок категории
 	err = loadBtnCategories()
+	if err != nil {
+		return err
+	}
+
+	// Загружаем заголовки кнопок периоды
+	err = loadBtnPeriods()
 	if err != nil {
 		return err
 	}
@@ -86,15 +90,37 @@ func loadBtnTitles() error {
 func loadBtnCategories() error {
 	filePath := "./config/buttons_categories.json"
 
+	// Открываем JSON файл
 	file, err := os.Open(filePath)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
 
-	byteValue, _ := io.ReadAll(file)
+	// Декодируем JSON в мапу
+	decoder := json.NewDecoder(file)
+	if err = decoder.Decode(&BtnCategoriesList); err != nil {
+		return err
+	}
 
-	json.Unmarshal(byteValue, &BtnCategoriesList)
+	return nil
+}
+
+func loadBtnPeriods() error {
+	filePath := "./config/buttons_periods.json"
+
+	// Открываем JSON файл
+	file, err := os.Open(filePath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	// Декодируем JSON в мапу
+	decoder := json.NewDecoder(file)
+	if err = decoder.Decode(&BtnPeriodsList); err != nil {
+		return err
+	}
 
 	return nil
 }

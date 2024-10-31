@@ -1,0 +1,8 @@
+{
+  "period_day": "День",
+  "period_week": "Неделя",
+  "period_month": "Месяц",
+  "period_quarter" : "Квартал",
+  "period_halfyear": "Полугодие",
+  "period_year": "Год"
+}

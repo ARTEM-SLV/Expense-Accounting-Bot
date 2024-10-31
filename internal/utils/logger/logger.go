@@ -32,10 +32,27 @@ func (l *Logger) Info(message string) {
 	log.Println("INFO: ", message)
 }
 
+// Warning записывает сообщение об ошибке
+func (l *Logger) Warning(message string) {
+	log.Println("WARNING: ", message)
+}
+
 // Error записывает сообщение об ошибке
 func (l *Logger) Error(message string, err error) {
-	msg := fmt.Sprintf("%s %s", message, err)
-	log.Println("INFO: ", msg)
+	msg := fmt.Sprintf("%s %v", message, err)
+	log.Println("ERROR: ", msg)
+}
+
+// Error ошибка отправки сообщение ботом
+func (l *Logger) ErrorSendMessage(err error) {
+	msg := fmt.Sprintf("Не удалось отправить сообщение %v", err)
+	log.Println("ERROR: ", msg)
+}
+
+// Error ошибка изменения сообщение ботом
+func (l *Logger) ErrorEditMessage(err error) {
+	msg := fmt.Sprintf("Не удалось изменить сообщение %v", err)
+	log.Println("ERROR: ", msg)
 }
 
 // Close закрывает файл логов
