@@ -50,7 +50,9 @@ func (e *ExpenseBot) Start() {
 		}
 
 		if isRegistered {
-			err = e.bot.Delete(lastBotMessage)
+			if lastBotMessage != nil {
+				err = e.bot.Delete(lastBotMessage)
+			}
 			if err != nil {
 				logger.L.Error("Ошибка при удалении сообщения:", err)
 			}
@@ -290,25 +292,58 @@ func getPeriodDates(period string) (int64, int64) {
 	now := time.Now()
 	var startDate, endDate time.Time
 
+	currYear := now.Year()
+	currMonth := now.Month()
+	currDay := now.Day()
+
 	switch period {
 	case "period_day":
-		startDate = now.Truncate(24 * time.Hour)
-		endDate = now
+		// Начало текущего дня
+		startDate = time.Date(currYear, currMonth, currDay, 0, 0, 0, 0, now.Location())
+		// Конец текущего дня
+		endDate = time.Date(currYear, currMonth, currDay, 23, 59, 59, int(time.Nanosecond*999999999), now.Location())
 	case "period_week":
-		startDate = now.AddDate(0, 0, -7)
-		endDate = now
+		// Получаем день недели (в Go воскресенье - 0, понедельник - 1, ... суббота - 6)
+		weekday := int(now.Weekday())
+		// Смещение для начала недели (если неделя начинается с понедельника)
+		offset := (weekday + 6) % 7 // Количество дней, на которые нужно сдвинуть назад, чтобы получить понедельник
+		// Начало недели (понедельник текущей недели)
+		startDate = now.AddDate(0, 0, -offset).Truncate(24 * time.Hour)
+		// Конец недели (воскресенье текущей недели)
+		endDate = startDate.AddDate(0, 0, 6).Add(time.Hour*23 + time.Minute*59 + time.Second*59 + time.Nanosecond*999999999)
 	case "period_month":
-		startDate = now.AddDate(0, -1, 0)
-		endDate = now
+		// Начало текущего месяца
+		startDate = time.Date(currYear, currMonth, 1, 0, 0, 0, 0, now.Location())
+		// Конец текущего месяца
+		endDate = startDate.AddDate(0, 1, -1).Add(time.Hour*23 + time.Minute*59 + time.Second*59 + time.Nanosecond*999999999)
 	case "period_quarter":
-		startDate = now.AddDate(0, -3, 0)
-		endDate = now
+		// Определяем начало квартала
+		switch now.Month() {
+		case time.January, time.February, time.March:
+			startDate = time.Date(now.Year(), time.January, 1, 0, 0, 0, 0, now.Location())
+		case time.April, time.May, time.June:
+			startDate = time.Date(now.Year(), time.April, 1, 0, 0, 0, 0, now.Location())
+		case time.July, time.August, time.September:
+			startDate = time.Date(now.Year(), time.July, 1, 0, 0, 0, 0, now.Location())
+		case time.October, time.November, time.December:
+			startDate = time.Date(now.Year(), time.October, 1, 0, 0, 0, 0, now.Location())
+		}
+		// Конец квартала — добавляем 3 месяца к началу квартала и вычитаем 1 день
+		endDate = startDate.AddDate(0, 3, -1).Add(time.Hour*23 + time.Minute*59 + time.Second*59 + time.Nanosecond*999999999)
 	case "period_halfyear":
-		startDate = now.AddDate(0, -6, 0)
-		endDate = now
+		// Определяем начало полугодия
+		if now.Month() <= time.June { // Первое полугодие: Январь - Июнь
+			startDate = time.Date(now.Year(), time.January, 1, 0, 0, 0, 0, now.Location())
+		} else { // Второе полугодие: Июль - Декабрь
+			startDate = time.Date(now.Year(), time.July, 1, 0, 0, 0, 0, now.Location())
+		}
+		// Конец полугодия: добавляем 6 месяцев к началу полугодия и вычитаем 1 день
+		endDate = startDate.AddDate(0, 6, -1).Add(time.Hour*23 + time.Minute*59 + time.Second*59 + time.Nanosecond*999999999)
 	case "period_year":
-		startDate = now.AddDate(-1, 0, 0)
-		endDate = now
+		// Начало года: 1 января текущего года
+		startDate = time.Date(now.Year(), time.January, 1, 0, 0, 0, 0, now.Location())
+		// Конец года: 31 декабря текущего года, конец дня
+		endDate = time.Date(now.Year(), time.December, 31, 23, 59, 59, int(time.Nanosecond*999999999), now.Location())
 	}
 
 	return startDate.UnixMilli(), endDate.UnixMilli()
