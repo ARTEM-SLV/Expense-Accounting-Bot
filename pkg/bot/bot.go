@@ -39,6 +39,7 @@ type Messages struct {
 	NumberError    string `json:"number_error"`
 	SelectPeriod   string `json:"select_period"`
 	Category       string `json:"category"`
+	Period         string `json:"period"`
 	ErrorReg       string `json:"error_reg"`
 	UserRegistered string `json:"user_registered"`
 }
@@ -72,7 +73,7 @@ func InitStringValues() error {
 }
 
 func loadBtnTitles() error {
-	filePath := "./config/button_titles.json"
+	filePath := "./config/string_values/button_titles.json"
 
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -88,7 +89,7 @@ func loadBtnTitles() error {
 }
 
 func loadBtnCategories() error {
-	filePath := "./config/buttons_categories.json"
+	filePath := "./config/string_values/buttons_categories.json"
 
 	// Открываем JSON файл
 	file, err := os.Open(filePath)
@@ -107,7 +108,7 @@ func loadBtnCategories() error {
 }
 
 func loadBtnPeriods() error {
-	filePath := "./config/buttons_periods.json"
+	filePath := "./config/string_values/buttons_periods.json"
 
 	// Открываем JSON файл
 	file, err := os.Open(filePath)
@@ -126,7 +127,7 @@ func loadBtnPeriods() error {
 }
 
 func loadMessages() error {
-	filePath := "./config/messages.json"
+	filePath := "./config/string_values/messages.json"
 
 	file, err := os.Open(filePath)
 	if err != nil {

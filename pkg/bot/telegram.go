@@ -16,7 +16,7 @@ import (
 var userStates = make(map[int]string)
 
 // Поле для хранения последнего сообщения от бота
-var lastBotMessage *telebot.Message
+var lastBotMessage = make(map[int]*telebot.Message)
 
 // ExpenseBot структура для бота с телеграмом
 type ExpenseBot struct {
@@ -45,19 +45,19 @@ func (e *ExpenseBot) Start() {
 		isRegistered, dateReg, err := e.repo.IsUserRegistered(userID)
 		if err != nil {
 			logger.L.Error(MessagesList.ErrorReg, err)
-			e.sendBotMessage(m, MessagesList.ErrorReg)
+			sendBotMessage(e, m, MessagesList.ErrorReg)
 			return
 		}
 
 		if isRegistered {
-			if lastBotMessage != nil {
-				err = e.bot.Delete(lastBotMessage)
+			if lastBotMessage[userID] != nil {
+				err = e.bot.Delete(lastBotMessage[userID])
 			}
 			if err != nil {
 				logger.L.Error("Ошибка при удалении сообщения:", err)
 			}
-			e.sendBotMessage(m, fmt.Sprintf(MessagesList.UserRegistered, userName, dateReg))
-			e.sendBotMessageWithMenu(m, MessagesList.SelectAction, menu)
+			sendBotMessage(e, m, fmt.Sprintf(MessagesList.UserRegistered, userName, dateReg))
+			sendBotMessageWithMenu(e, m, MessagesList.SelectAction, menu)
 			return
 		}
 
@@ -65,14 +65,14 @@ func (e *ExpenseBot) Start() {
 		err = e.repo.AddUser(userID, userName)
 		if err != nil {
 			logger.L.Error(MessagesList.ErrorReg, err)
-			e.sendBotMessage(m, MessagesList.ErrorReg)
+			sendBotMessage(e, m, MessagesList.ErrorReg)
 			return
 		}
 
 		msg := fmt.Sprintf(MessagesList.Welcome, m.Sender.FirstName, m.Sender.LastName)
-		e.sendBotMessage(m, msg)
+		sendBotMessage(e, m, msg)
 
-		e.sendBotMessageWithMenu(m, MessagesList.SelectAction, menu)
+		sendBotMessageWithMenu(e, m, MessagesList.SelectAction, menu)
 	})
 
 	createButtonsMainMenu(e, menu)
@@ -113,7 +113,7 @@ func btnNewExpenseFunc(e *ExpenseBot, menu *telebot.ReplyMarkup) func(*telebot.C
 
 		createButtonsOfCategories(e, menu)
 
-		e.editBotMessageWithMenu(c, MessagesList.SelectCategory, menu) // e.bot.Edit(c.Message, MessagesList.SelectCategory, menu)
+		editBotMessageWithMenu(e, c, MessagesList.SelectCategory, menu) // e.bot.Edit(c.Message, MessagesList.SelectCategory, menu)
 	}
 }
 
@@ -164,7 +164,7 @@ func btnCategoryFunc(e *ExpenseBot, category string, menu *telebot.ReplyMarkup) 
 		e.bot.Handle(&btnBack, btnBackFunc(e, menu, "SelectCategory"))
 		menu.InlineKeyboard = append(menu.InlineKeyboard, []telebot.InlineButton{btnBack})
 
-		e.editBotMessageWithMenu(c, MessagesList.EnterAmount, menu)
+		editBotMessageWithMenu(e, c, MessagesList.EnterAmount, menu)
 
 		e.bot.Handle(telebot.OnText, addExpense(e, menu, c))
 	}
@@ -179,7 +179,7 @@ func addExpense(e *ExpenseBot, menu *telebot.ReplyMarkup, c *telebot.Callback) f
 
 		amount, err := strconv.ParseFloat(m.Text, 64)
 		if err != nil {
-			e.sendBotMessage(m, MessagesList.NumberError)
+			sendBotMessage(e, m, MessagesList.NumberError)
 			return
 		}
 
@@ -194,14 +194,14 @@ func addExpense(e *ExpenseBot, menu *telebot.ReplyMarkup, c *telebot.Callback) f
 			logger.L.Error("Ошибка при добавлении расхода:", err)
 		} else {
 			msg := fmt.Sprintf(MessagesList.AddedExpense, expense.Date.Format("2006-01-02 15:04:05"), expense.Category, expense.Amount)
-			e.sendBotMessage(m, msg) // e.bot.Send(m.Sender, )
+			sendBotMessage(e, m, msg) // e.bot.Send(m.Sender, )
 		}
 
 		menu.InlineKeyboard = nil
-		e.editBotMessageWithMenu(c, MessagesList.EnterAmount, menu) // e.bot.Edit(c.Message, MessagesList.EnterAmount)
+		editBotMessageWithMenu(e, c, MessagesList.EnterAmount, menu) // e.bot.Edit(c.Message, MessagesList.EnterAmount)
 
 		createButtonsMainMenu(e, menu)
-		e.sendBotMessageWithMenu(m, MessagesList.SelectAction, menu) // e.bot.Send(m.Sender, MessagesList.SelectAction, menu)
+		sendBotMessageWithMenu(e, m, MessagesList.SelectAction, menu) // e.bot.Send(m.Sender, MessagesList.SelectAction, menu)
 
 		delete(userStates, m.Sender.ID)
 	}
@@ -215,7 +215,7 @@ func btnMyExpensesFunc(e *ExpenseBot, menu *telebot.ReplyMarkup) func(*telebot.C
 		menu.InlineKeyboard = nil
 
 		createButtonsOfPeriods(e, menu)
-		e.editBotMessageWithMenu(c, MessagesList.SelectPeriod, menu) // e.bot.Edit(c.Message, MessagesList.SelectPeriod, menu)
+		editBotMessageWithMenu(e, c, MessagesList.SelectPeriod, menu) // e.bot.Edit(c.Message, MessagesList.SelectPeriod, menu)
 	}
 }
 
@@ -241,11 +241,13 @@ func createButtonsOfPeriods(e *ExpenseBot, menu *telebot.ReplyMarkup) {
 
 func btnPeriodFunc(e *ExpenseBot, period_key string, period string, menu *telebot.ReplyMarkup) func(callback *telebot.Callback) {
 	return func(c *telebot.Callback) {
+		e.bot.Respond(c, &telebot.CallbackResponse{Text: fmt.Sprintf(MessagesList.Period, period)})
+
 		menu.InlineKeyboard = nil
 
 		userID := c.Sender.ID
 		report := getExpensesByPeriod(e, userID, period_key, period)
-		e.editBotMessageWithMenu(c, report, menu)
+		editBotMessageWithMenu(e, c, report, menu)
 
 		createButtonsMainMenu(e, menu)
 		e.bot.Send(c.Sender, MessagesList.SelectAction, menu)
@@ -351,8 +353,9 @@ func getPeriodDates(period string) (int64, int64) {
 
 func (e *ExpenseBot) handleOnText(menu *telebot.ReplyMarkup) func(*telebot.Message) {
 	return func(m *telebot.Message) {
-		if lastBotMessage != nil {
-			err := e.bot.Delete(lastBotMessage)
+		userID := m.Sender.ID
+		if lastBotMessage[userID] != nil {
+			err := e.bot.Delete(lastBotMessage[userID])
 			if err != nil {
 				logger.L.Error("Ошибка при удалении сообщения:", err)
 			}
@@ -360,35 +363,35 @@ func (e *ExpenseBot) handleOnText(menu *telebot.ReplyMarkup) func(*telebot.Messa
 
 		// Перехват сообщения от пользователя
 		//userMessage := m.Text
-		e.sendBotMessage(m, MessagesList.UnknownAction) // e.bot.Send(m.Sender, MessagesList.UnknownAction)
+		sendBotMessage(e, m, MessagesList.UnknownAction) // e.bot.Send(m.Sender, MessagesList.UnknownAction)
 
 		createButtonsMainMenu(e, menu)
-		e.sendBotMessageWithMenu(m, MessagesList.SelectAction, menu) // e.bot.Send(m.Sender, MessagesList.SelectAction, menu)
+		sendBotMessageWithMenu(e, m, MessagesList.SelectAction, menu) // e.bot.Send(m.Sender, MessagesList.SelectAction, menu)
 	}
 }
 
-func (e *ExpenseBot) sendBotMessage(m *telebot.Message, msg string) {
+func sendBotMessage(e *ExpenseBot, m *telebot.Message, msg string) {
 	sentMessage, err := e.bot.Send(m.Sender, msg)
 	if err != nil {
 		logger.L.ErrorSendMessage(err)
 	}
-	lastBotMessage = sentMessage
+	lastBotMessage[m.Sender.ID] = sentMessage
 }
 
-func (e *ExpenseBot) sendBotMessageWithMenu(m *telebot.Message, msg string, menu *telebot.ReplyMarkup) {
+func sendBotMessageWithMenu(e *ExpenseBot, m *telebot.Message, msg string, menu *telebot.ReplyMarkup) {
 	sentMessage, err := e.bot.Send(m.Sender, msg, menu)
 	if err != nil {
 		logger.L.ErrorSendMessage(err)
 	}
-	lastBotMessage = sentMessage
+	lastBotMessage[m.Sender.ID] = sentMessage
 }
 
-func (e *ExpenseBot) editBotMessageWithMenu(c *telebot.Callback, msg string, menu *telebot.ReplyMarkup) {
+func editBotMessageWithMenu(e *ExpenseBot, c *telebot.Callback, msg string, menu *telebot.ReplyMarkup) {
 	sentMessage, err := e.bot.Edit(c.Message, msg, menu)
 	if err != nil {
 		logger.L.ErrorEditMessage(err)
 	}
-	lastBotMessage = sentMessage
+	lastBotMessage[c.Sender.ID] = sentMessage
 }
 
 func btnBackFunc(e *ExpenseBot, menu *telebot.ReplyMarkup, backTo string) func(*telebot.Callback) {
@@ -407,6 +410,6 @@ func btnBackFunc(e *ExpenseBot, menu *telebot.ReplyMarkup, backTo string) func(*
 			msg = MessagesList.SelectCategory
 		}
 
-		e.editBotMessageWithMenu(c, msg, menu)
+		editBotMessageWithMenu(e, c, msg, menu)
 	}
 }

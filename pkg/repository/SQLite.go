@@ -45,6 +45,18 @@ func (r *SQLiteExpenseRepository) InitSchema() error {
 		return err
 	}
 
+	query = `
+    CREATE TABLE IF NOT EXISTS user_categories (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,        
+        category TEXT NOT NULL,
+        UNIQUE(user_id, category_name),
+        FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+    );
+    CREATE INDEX IF NOT EXISTS idx_user ON user_categories (user_id);`
+	_, err = r.db.Exec(query)
+	return err
+
 	return nil
 }
 
@@ -143,4 +155,32 @@ func (r *SQLiteExpenseRepository) GetExpensesByPeriodUnix(userID int, startUnixM
 	}
 
 	return expenses, nil
+}
+
+func (r *SQLiteExpenseRepository) AddUserCategory(userID int, category string) error {
+	_, err := r.db.Exec(`
+        INSERT INTO user_categories (user_id, category) VALUES (?, ?)
+    `, userID, category)
+
+	return err
+}
+
+func (r *SQLiteExpenseRepository) GetUserCategories(userID int) ([]string, error) {
+	var categories []string
+
+	rows, err := r.db.Query(`
+        SELECT registered FROM users WHERE user_id = ?
+    `, userID)
+	if err != nil {
+		return categories, err
+	}
+	defer rows.Close()
+
+	if rows.Next() {
+		if err = rows.Scan(&categories); err != nil {
+			return categories, err
+		}
+	}
+
+	return categories, nil
 }
