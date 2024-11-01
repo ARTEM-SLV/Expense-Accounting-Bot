@@ -31,6 +31,7 @@ type BtnTitles struct {
 
 type Messages struct {
 	Welcome        string `json:"welcome"`
+	Help           string `json:"help"`
 	SelectAction   string `json:"select_action"`
 	SelectCategory string `json:"select_category"`
 	EnterAmount    string `json:"enter_amount"`

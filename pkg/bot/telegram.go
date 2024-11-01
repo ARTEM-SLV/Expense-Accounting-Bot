@@ -362,11 +362,14 @@ func (e *ExpenseBot) handleOnText(menu *telebot.ReplyMarkup) func(*telebot.Messa
 		}
 
 		// Перехват сообщения от пользователя
-		//userMessage := m.Text
-		sendBotMessage(e, m, MessagesList.UnknownAction) // e.bot.Send(m.Sender, MessagesList.UnknownAction)
+		if m.Text == "/help" {
+			sendBotMessage(e, m, MessagesList.Help)
+		} else {
+			sendBotMessage(e, m, MessagesList.UnknownAction)
+		}
 
 		createButtonsMainMenu(e, menu)
-		sendBotMessageWithMenu(e, m, MessagesList.SelectAction, menu) // e.bot.Send(m.Sender, MessagesList.SelectAction, menu)
+		sendBotMessageWithMenu(e, m, MessagesList.SelectAction, menu)
 	}
 }
 
