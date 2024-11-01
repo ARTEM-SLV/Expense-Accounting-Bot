@@ -50,7 +50,7 @@ func (r *SQLiteExpenseRepository) InitSchema() error {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER NOT NULL,        
         category TEXT NOT NULL,
-        UNIQUE(user_id, category_name),
+        UNIQUE(user_id, category),
         FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
     );
     CREATE INDEX IF NOT EXISTS idx_user ON user_categories (user_id);`
