@@ -16,8 +16,11 @@ type Config struct {
 // LoadConfig загружает конфигурацию из .env файла и переменных окружения
 func LoadConfig() *Config {
 	// Загружаем переменные из .env файла
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("Не удалось загрузить .env файл, будут использованы переменные окружения", err)
+	env := os.Getenv("RAILWAY_ENVIRONMENT")
+	if env == "" {
+		if err := godotenv.Load(); err != nil {
+			log.Fatal("Не удалось загрузить .env файл, будут использованы переменные окружения", err)
+		}
 	}
 
 	cfg := &Config{
