@@ -2,7 +2,11 @@ package telegram
 
 import (
 	"fmt"
+	"github.com/robfig/cron/v3"
+	"log"
+	"time"
 
+	_ "github.com/robfig/cron/v3"
 	"github.com/tucnak/telebot"
 
 	"expense_accounting_bot/internal/utils/logger"
@@ -200,4 +204,39 @@ func getUserMessage(e *ExpenseBot, userID int) (*telebot.Message, error) {
 	}
 
 	return message, nil
+}
+
+func (e *ExpenseBot) StartDailyReport(adminID int) {
+	c := cron.New()
+
+	// Добавляем задачу для отправки отчета в 9 утра каждый день
+	_, err := c.AddFunc("0 9 * * *", func() {
+		if err := SendUserCountReport(e, adminID); err != nil {
+			log.Printf("Ошибка при отправке отчета: %v", err)
+		} else {
+			log.Println("Отчет успешно отправлен администратору.")
+		}
+	})
+
+	if err != nil {
+		log.Fatalf("Ошибка при создании задачи cron: %v", err)
+	}
+
+	// Запуск cron
+	c.Start()
+}
+
+func SendUserCountReport(e *ExpenseBot, adminID int) error {
+	// Получаем количество пользователей из базы данных
+	userCount, err := e.repo.GetUserCount() // функция для подсчета пользователей
+	if err != nil {
+		return err
+	}
+
+	// Формируем сообщение
+	message := fmt.Sprintf("На %s количество пользователей: %d", time.Now().Format("02-01-2006"), userCount)
+
+	// Отправляем сообщение администратору
+	_, err = e.bot.Send(&telebot.User{ID: adminID}, message)
+	return err
 }

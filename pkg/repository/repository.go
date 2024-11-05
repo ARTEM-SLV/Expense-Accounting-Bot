@@ -16,6 +16,7 @@ type Expense struct {
 type ExpenseRepository interface {
 	InitSchema() error
 	AddUser(userID int, userName string) error
+	GetUserCount() (int, error)
 	SetLastBotMsgID(userID int, msgID int, chatID int64) error
 	GetLastBotMsgID(userID int) (int, int64, error)
 	IsUserRegistered(userID int) (bool, string, error)

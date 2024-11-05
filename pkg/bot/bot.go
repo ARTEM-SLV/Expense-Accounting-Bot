@@ -20,6 +20,7 @@ var Periods = [6]string{"period_day", "period_week", "period_month", "period_qua
 // Bot интерфейс для бота, поддерживающий различные мессенджеры
 type Bot interface {
 	Start()
+	StartDailyReport(adminID int)
 }
 
 type BtnTitles struct {

@@ -72,8 +72,23 @@ func (r *SQLiteExpenseRepository) AddUser(userID int, userName string) error {
 	return err
 }
 
+func (r *SQLiteExpenseRepository) GetUserCount() (int, error) {
+	query := `
+		SELECT count(*) 
+		FROM users 
+	`
+	// Выполнение запроса
+	row := r.db.QueryRow(query)
+
+	var count int
+	if err := row.Scan(&count); err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
 func (r *SQLiteExpenseRepository) SetLastBotMsgID(userID int, msgID int, chatID int64) error {
-	// Запрос на обновление пользователя
 	query := `
         UPDATE users 
         SET last_bot_msg_id = ?, chat_id = ?
@@ -87,7 +102,6 @@ func (r *SQLiteExpenseRepository) SetLastBotMsgID(userID int, msgID int, chatID 
 }
 
 func (r *SQLiteExpenseRepository) GetLastBotMsgID(userID int) (int, int64, error) {
-	// Запрос на обновление пользователя
 	query := `
 		SELECT last_bot_msg_id, chat_id 
 		FROM users 

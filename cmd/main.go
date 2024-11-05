@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/tucnak/telebot"
@@ -19,7 +20,7 @@ func main() {
 	cfg := config.LoadConfig()
 
 	// Инициализируем логгер
-	logPath := "bot.log" // Путь к файлу для логов
+	logPath := "./bot.log" // Путь к файлу для логов
 	err := logger.InitLogger(logPath)
 	if err != nil {
 		log.Fatal(err)
@@ -27,7 +28,7 @@ func main() {
 	defer logger.L.Close()
 
 	// Подключаемся к SQLite
-	db, err := sql.Open("sqlite", "./expenses.db")
+	db, err := sql.Open("sqlite", cfg.DatabasePath)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -56,6 +57,13 @@ func main() {
 
 	// Создаем объект нашего бота с логгером
 	expenseBot := telegram.NewExpenseBot(b, repo)
+
+	adminID, err := strconv.Atoi(cfg.AdminID)
+	if err != nil || adminID == 0 {
+		logger.L.Error("Не удалось получить adminID", err)
+	} else {
+		expenseBot.StartDailyReport(adminID)
+	}
 
 	// Запускаем бота
 	logger.L.Info("Запуск бота...")

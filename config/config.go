@@ -11,6 +11,7 @@ import (
 type Config struct {
 	TelegramToken string
 	DatabasePath  string
+	AdminID       string
 }
 
 // LoadConfig загружает конфигурацию из .env файла и переменных окружения
@@ -26,6 +27,7 @@ func LoadConfig() *Config {
 	cfg := &Config{
 		TelegramToken: os.Getenv("TELEGRAM_TOKEN"),
 		DatabasePath:  os.Getenv("DATABASE_PATH"),
+		AdminID:       os.Getenv("ADMIN_ID"),
 	}
 
 	if cfg.TelegramToken == "" {
