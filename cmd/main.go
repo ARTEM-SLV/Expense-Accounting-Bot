@@ -10,6 +10,7 @@ import (
 	"expense_accounting_bot/config"
 	"expense_accounting_bot/internal/utils/logger"
 	"expense_accounting_bot/pkg/bot"
+	"expense_accounting_bot/pkg/bot/telegram"
 	"expense_accounting_bot/pkg/repository"
 )
 
@@ -54,7 +55,7 @@ func main() {
 	}
 
 	// Создаем объект нашего бота с логгером
-	expenseBot := bot.NewExpenseBot(b, repo)
+	expenseBot := telegram.NewExpenseBot(b, repo)
 
 	// Запускаем бота
 	logger.L.Info("Запуск бота...")

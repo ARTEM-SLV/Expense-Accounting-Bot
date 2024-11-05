@@ -38,7 +38,9 @@ func (r *SQLiteExpenseRepository) InitSchema() error {
 	CREATE TABLE IF NOT EXISTS users (
 		user_id INTEGER PRIMARY KEY,
 		user_name TEXT,
-		registered TEXT
+		registered TEXT,
+		last_bot_msg_id INTEGER DEFAULT 0,
+		chat_id INTEGER DEFAULT 0
 	);`
 	_, err = r.db.Exec(query)
 	if err != nil {
@@ -68,6 +70,40 @@ func (r *SQLiteExpenseRepository) AddUser(userID int, userName string) error {
     `, userID, userName, date.Format("2006-01-02 15:04:05"))
 
 	return err
+}
+
+func (r *SQLiteExpenseRepository) SetLastBotMsgID(userID int, msgID int, chatID int64) error {
+	// Запрос на обновление пользователя
+	query := `
+        UPDATE users 
+        SET last_bot_msg_id = ?, chat_id = ?
+        WHERE user_id = ?;
+    `
+
+	// Выполнение запроса
+	_, err := r.db.Exec(query, msgID, chatID, userID)
+
+	return err
+}
+
+func (r *SQLiteExpenseRepository) GetLastBotMsgID(userID int) (int, int64, error) {
+	// Запрос на обновление пользователя
+	query := `
+		SELECT last_bot_msg_id, chat_id 
+		FROM users 
+		WHERE user_id = ?
+	`
+
+	row := r.db.QueryRow(query, userID)
+
+	// Выполнение запроса
+	var msgID int
+	var chatID int64
+	if err := row.Scan(&msgID, &chatID); err != nil {
+		return 0, 0, err
+	}
+
+	return msgID, chatID, nil
 }
 
 func (r *SQLiteExpenseRepository) IsUserRegistered(userID int) (bool, string, error) {
