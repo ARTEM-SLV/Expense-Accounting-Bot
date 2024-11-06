@@ -50,7 +50,7 @@ func (e *ExpenseBot) Start() {
 		if isRegistered {
 			deleteBotMessage(e, userID)
 
-			sendBotMessage(e, m, fmt.Sprintf(bot.MessagesList.UserRegistered, userName, userID, dateReg))
+			sendBotMessage(e, m, fmt.Sprintf(bot.MessagesList.UserRegistered, userName, dateReg))
 			sendBotMessageWithMenu(e, m, bot.MessagesList.SelectAction, menu)
 
 			return
@@ -221,11 +221,11 @@ func getUserCountReport(e *ExpenseBot) string {
 
 func cmdSendUserCount(e *ExpenseBot, menu *telebot.ReplyMarkup) func(*telebot.Message) {
 	return func(m *telebot.Message) {
-		if m.Sender.ID != e.adminID {
-			userID := m.Sender.ID
+		userID := m.Sender.ID
+		if userID != e.adminID {
 			deleteBotMessage(e, userID)
 
-			msg := fmt.Sprintf("Команда доступна только для админа id:%v, Ваш id:%v", userID, m.Chat.ID)
+			msg := fmt.Sprintf("Команда доступна только для админа id:%v, Ваш id:%v", e.adminID, userID)
 			sendBotMessage(e, m, msg)
 			createButtonsMainMenu(e, menu)
 			sendBotMessageWithMenu(e, m, bot.MessagesList.SelectAction, menu)
@@ -246,11 +246,11 @@ func cmdSendUserCount(e *ExpenseBot, menu *telebot.ReplyMarkup) func(*telebot.Me
 
 func cmdSendLogFile(e *ExpenseBot, menu *telebot.ReplyMarkup) func(*telebot.Message) {
 	return func(m *telebot.Message) {
+		userID := m.Sender.ID
 		if m.Sender.ID != e.adminID {
-			userID := m.Sender.ID
 			deleteBotMessage(e, userID)
 
-			msg := fmt.Sprintf("Команда доступна только для админа id:%v, Ваш id:%v", userID, m.Chat.ID)
+			msg := fmt.Sprintf("Команда доступна только для админа id:%v, Ваш id:%v", e.adminID, userID)
 			sendBotMessage(e, m, msg)
 			createButtonsMainMenu(e, menu)
 			sendBotMessageWithMenu(e, m, bot.MessagesList.SelectAction, menu)
