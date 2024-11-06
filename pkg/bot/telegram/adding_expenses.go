@@ -102,15 +102,13 @@ func addExpense(e *ExpenseBot, menu *telebot.ReplyMarkup, c *telebot.Callback, c
 			logger.L.Error("Ошибка при добавлении расхода:", err)
 		} else {
 			msg := fmt.Sprintf(bot.MessagesList.AddedExpense, expense.Date.Format("2006-01-02 15:04:05"), expense.Category, expense.Amount)
-			sendBotMessage(e, m, msg) // e.bot.Send(m.Sender, )
+			sendBotMessage(e, m, msg)
 		}
 
 		menu.InlineKeyboard = nil
-		editBotMessageWithMenu(e, c, bot.MessagesList.EnterAmount, menu) // e.bot.Edit(c.Message, MessagesList.EnterAmount)
+		editBotMessageWithMenu(e, c, bot.MessagesList.EnterAmount, menu)
 
 		createButtonsMainMenu(e, menu)
-		sendBotMessageWithMenu(e, m, bot.MessagesList.SelectAction, menu) // e.bot.Send(m.Sender, MessagesList.SelectAction, menu)
-
-		//delete(userStates, m.Sender.ID)
+		sendBotMessageWithMenu(e, m, bot.MessagesList.SelectAction, menu)
 	}
 }

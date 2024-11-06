@@ -15,8 +15,6 @@ var Categories = [10]string{"btn_groceries", "btn_beauty", "btn_health", "btn_re
 	"btn_growth", "btn_trips", "btn_transport", "btn_business", "btn_other"}
 var Periods = [6]string{"period_day", "period_week", "period_month", "period_quarter", "period_halfyear", "period_year"}
 
-//var Categories map[string]string
-
 // Bot интерфейс для бота, поддерживающий различные мессенджеры
 type Bot interface {
 	Start()

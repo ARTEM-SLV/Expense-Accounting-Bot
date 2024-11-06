@@ -26,11 +26,11 @@ func NewExpenseBot(bot *telebot.Bot, repo repository.ExpenseRepository, adminID 
 
 // Start запускает обработку сообщений
 func (e *ExpenseBot) Start() {
-	e.bot.Handle("/countusers", cmdSendUserCount(e))
-	e.bot.Handle("/logs", cmdSendLogFile(e))
-
 	// Создаем клавиатуру с кнопками
 	menu := &telebot.ReplyMarkup{ResizeReplyKeyboard: true}
+
+	e.bot.Handle("/countusers", cmdSendUserCount(e, menu))
+	e.bot.Handle("/logs", cmdSendLogFile(e, menu))
 
 	// Обработчик команды /start
 	e.bot.Handle("/start", func(m *telebot.Message) {
@@ -96,10 +96,10 @@ func createButtonsMainMenu(e *ExpenseBot, menu *telebot.ReplyMarkup) {
 		{btnMyExpenses},
 	}
 
-	e.bot.Handle(telebot.OnText, e.handleOnText(menu))
+	e.bot.Handle(telebot.OnText, handleOnText(e, menu))
 }
 
-func (e *ExpenseBot) handleOnText(menu *telebot.ReplyMarkup) func(*telebot.Message) {
+func handleOnText(e *ExpenseBot, menu *telebot.ReplyMarkup) func(*telebot.Message) {
 	return func(m *telebot.Message) {
 		userID := m.Sender.ID
 		deleteBotMessage(e, userID)
@@ -219,9 +219,16 @@ func getUserCountReport(e *ExpenseBot) string {
 	return fmt.Sprintf("На %s количество пользователей: %d", time.Now().Format("02/01/2006"), userCount)
 }
 
-func cmdSendUserCount(e *ExpenseBot) func(*telebot.Message) {
+func cmdSendUserCount(e *ExpenseBot, menu *telebot.ReplyMarkup) func(*telebot.Message) {
 	return func(m *telebot.Message) {
 		if m.Sender.ID != e.adminID {
+			userID := m.Sender.ID
+			deleteBotMessage(e, userID)
+
+			sendBotMessage(e, m, bot.MessagesList.UnknownAction)
+			createButtonsMainMenu(e, menu)
+			sendBotMessageWithMenu(e, m, bot.MessagesList.SelectAction, menu)
+
 			return
 		}
 
@@ -236,9 +243,16 @@ func cmdSendUserCount(e *ExpenseBot) func(*telebot.Message) {
 	}
 }
 
-func cmdSendLogFile(e *ExpenseBot) func(*telebot.Message) {
+func cmdSendLogFile(e *ExpenseBot, menu *telebot.ReplyMarkup) func(*telebot.Message) {
 	return func(m *telebot.Message) {
 		if m.Sender.ID != e.adminID {
+			userID := m.Sender.ID
+			deleteBotMessage(e, userID)
+
+			sendBotMessage(e, m, bot.MessagesList.UnknownAction)
+			createButtonsMainMenu(e, menu)
+			sendBotMessageWithMenu(e, m, bot.MessagesList.SelectAction, menu)
+
 			return
 		}
 

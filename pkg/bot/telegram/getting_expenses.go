@@ -18,7 +18,7 @@ func btnMyExpensesFunc(e *ExpenseBot, menu *telebot.ReplyMarkup) func(*telebot.C
 		menu.InlineKeyboard = nil
 
 		createButtonsOfPeriods(e, menu)
-		editBotMessageWithMenu(e, c, bot.MessagesList.SelectPeriod, menu) // e.bot.Edit(c.Message, MessagesList.SelectPeriod, menu)
+		editBotMessageWithMenu(e, c, bot.MessagesList.SelectPeriod, menu)
 	}
 }
 
@@ -54,7 +54,6 @@ func btnPeriodFunc(e *ExpenseBot, period_key string, period string, menu *telebo
 
 		createButtonsMainMenu(e, menu)
 		e.bot.Send(c.Sender, bot.MessagesList.SelectAction, menu)
-		//e.sendBotMessageWithMenu(m, MessagesList.SelectAction, menu)
 	}
 }
 
