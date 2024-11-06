@@ -55,15 +55,13 @@ func main() {
 		log.Fatal("Ошибка при создании бота: ", err)
 	}
 
-	// Создаем объект нашего бота с логгером
-	expenseBot := telegram.NewExpenseBot(b, repo)
-
 	adminID, err := strconv.Atoi(cfg.AdminID)
 	if err != nil || adminID == 0 {
 		logger.L.Error("Не удалось получить adminID", err)
-	} else {
-		expenseBot.StartDailyReport(adminID)
 	}
+
+	// Создаем объект нашего бота с логгером
+	expenseBot := telegram.NewExpenseBot(b, repo, adminID)
 
 	// Запускаем бота
 	logger.L.Info("Запуск бота...")

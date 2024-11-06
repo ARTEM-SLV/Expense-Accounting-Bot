@@ -21,7 +21,7 @@ func btnNewExpenseFunc(e *ExpenseBot, menu *telebot.ReplyMarkup) func(*telebot.C
 
 		createButtonsOfCategories(e, menu)
 
-		editBotMessageWithMenu(e, c, bot.MessagesList.SelectCategory, menu) // e.bot.Edit(c.Message, MessagesList.SelectCategory, menu)
+		editBotMessageWithMenu(e, c, bot.MessagesList.SelectCategory, menu)
 	}
 }
 

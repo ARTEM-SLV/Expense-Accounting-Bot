@@ -2,11 +2,9 @@ package telegram
 
 import (
 	"fmt"
-	"github.com/robfig/cron/v3"
-	"log"
+	"os"
 	"time"
 
-	_ "github.com/robfig/cron/v3"
 	"github.com/tucnak/telebot"
 
 	"expense_accounting_bot/internal/utils/logger"
@@ -16,17 +14,21 @@ import (
 
 // ExpenseBot структура для бота с телеграмом
 type ExpenseBot struct {
-	bot  *telebot.Bot
-	repo repository.ExpenseRepository
+	bot     *telebot.Bot
+	repo    repository.ExpenseRepository
+	adminID int
 }
 
 // NewExpenseBot создает нового ExpenseBot
-func NewExpenseBot(bot *telebot.Bot, repo repository.ExpenseRepository) *ExpenseBot {
-	return &ExpenseBot{bot: bot, repo: repo}
+func NewExpenseBot(bot *telebot.Bot, repo repository.ExpenseRepository, adminID int) *ExpenseBot {
+	return &ExpenseBot{bot: bot, repo: repo, adminID: adminID}
 }
 
 // Start запускает обработку сообщений
 func (e *ExpenseBot) Start() {
+	e.bot.Handle("/countusers", cmdSendUserCount(e))
+	e.bot.Handle("/logs", cmdSendLogFile(e))
+
 	// Создаем клавиатуру с кнопками
 	menu := &telebot.ReplyMarkup{ResizeReplyKeyboard: true}
 
@@ -206,37 +208,64 @@ func getUserMessage(e *ExpenseBot, userID int) (*telebot.Message, error) {
 	return message, nil
 }
 
-func (e *ExpenseBot) StartDailyReport(adminID int) {
-	c := cron.New()
-
-	// Добавляем задачу для отправки отчета в 9 утра каждый день
-	_, err := c.AddFunc("0 9 * * *", func() {
-		if err := SendUserCountReport(e, adminID); err != nil {
-			log.Printf("Ошибка при отправке отчета: %v", err)
-		} else {
-			log.Println("Отчет успешно отправлен администратору.")
-		}
-	})
-
-	if err != nil {
-		log.Fatalf("Ошибка при создании задачи cron: %v", err)
-	}
-
-	// Запуск cron
-	c.Start()
-}
-
-func SendUserCountReport(e *ExpenseBot, adminID int) error {
+func getUserCountReport(e *ExpenseBot) string {
 	// Получаем количество пользователей из базы данных
 	userCount, err := e.repo.GetUserCount() // функция для подсчета пользователей
 	if err != nil {
-		return err
+		return ""
 	}
 
 	// Формируем сообщение
-	message := fmt.Sprintf("На %s количество пользователей: %d", time.Now().Format("02-01-2006"), userCount)
+	return fmt.Sprintf("На %s количество пользователей: %d", time.Now().Format("02/01/2006"), userCount)
+}
 
-	// Отправляем сообщение администратору
-	_, err = e.bot.Send(&telebot.User{ID: adminID}, message)
-	return err
+func cmdSendUserCount(e *ExpenseBot) func(*telebot.Message) {
+	return func(m *telebot.Message) {
+		if m.Sender.ID != e.adminID {
+			return
+		}
+
+		logger.L.Info(fmt.Sprintf("Нажата кнопка '%s' пользователем %s", bot.BtnTitlesList.BtnNewExpense, m.Sender.Username))
+
+		message := getUserCountReport(e)
+
+		_, err := e.bot.Send(m.Sender, message)
+		if err != nil {
+			logger.L.ErrorSendMessage(err)
+		}
+	}
+}
+
+func cmdSendLogFile(e *ExpenseBot) func(*telebot.Message) {
+	return func(m *telebot.Message) {
+		if m.Sender.ID != e.adminID {
+			return
+		}
+
+		data, err := os.ReadFile("bot.log")
+		if err != nil {
+			_, err = e.bot.Send(m.Sender, "Не удалось прочитать файл лога: "+err.Error())
+			if err != nil {
+				logger.L.ErrorSendMessage(err)
+			}
+			return
+		}
+
+		// Ограничение размера сообщения (Telegram ограничивает размер сообщения)
+		messageSizeLimit := 4096
+		logContent := string(data)
+		// Если лог-файл слишком большой, разделим его на части
+		for i := 0; i < len(logContent); i += messageSizeLimit {
+			end := i + messageSizeLimit
+			if end > len(logContent) {
+				end = len(logContent)
+			}
+
+			// Отправка частей файла в сообщениях
+			_, err = e.bot.Send(m.Sender, logContent[i:end])
+			if err != nil {
+				logger.L.ErrorSendMessage(err)
+			}
+		}
+	}
 }
