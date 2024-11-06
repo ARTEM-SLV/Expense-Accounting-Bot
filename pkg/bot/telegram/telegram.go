@@ -137,15 +137,15 @@ func btnBackFunc(e *ExpenseBot, menu *telebot.ReplyMarkup, backTo string) func(*
 }
 
 func sendBotMessage(e *ExpenseBot, m *telebot.Message, msg string) {
-	sentMessage, err := e.bot.Send(m.Sender, msg)
+	_, err := e.bot.Send(m.Sender, msg)
 	if err != nil {
 		logger.L.ErrorSendMessage(err)
 	}
 
-	err = e.repo.SetLastBotMsgID(m.Sender.ID, sentMessage.ID, m.Chat.ID)
-	if err != nil {
-		logger.L.ErrorSendMessage(err)
-	}
+	//err = e.repo.SetLastBotMsgID(m.Sender.ID, sentMessage.ID, m.Chat.ID)
+	//if err != nil {
+	//	logger.L.ErrorSendMessage(err)
+	//}
 }
 
 func sendBotMessageWithMenu(e *ExpenseBot, m *telebot.Message, msg string, menu *telebot.ReplyMarkup) {
@@ -225,7 +225,8 @@ func cmdSendUserCount(e *ExpenseBot, menu *telebot.ReplyMarkup) func(*telebot.Me
 			userID := m.Sender.ID
 			deleteBotMessage(e, userID)
 
-			sendBotMessage(e, m, bot.MessagesList.UnknownAction)
+			msg := fmt.Sprintf("Команда доступна только для админа id:%v, Ваш id:%v", userID, m.Chat.ID)
+			sendBotMessage(e, m, msg)
 			createButtonsMainMenu(e, menu)
 			sendBotMessageWithMenu(e, m, bot.MessagesList.SelectAction, menu)
 
@@ -249,7 +250,8 @@ func cmdSendLogFile(e *ExpenseBot, menu *telebot.ReplyMarkup) func(*telebot.Mess
 			userID := m.Sender.ID
 			deleteBotMessage(e, userID)
 
-			sendBotMessage(e, m, bot.MessagesList.UnknownAction)
+			msg := fmt.Sprintf("Команда доступна только для админа id:%v, Ваш id:%v", userID, m.Chat.ID)
+			sendBotMessage(e, m, msg)
 			createButtonsMainMenu(e, menu)
 			sendBotMessageWithMenu(e, m, bot.MessagesList.SelectAction, menu)
 
