@@ -50,7 +50,7 @@ func (e *ExpenseBot) Start() {
 		if isRegistered {
 			deleteBotMessage(e, userID)
 
-			sendBotMessage(e, m, fmt.Sprintf(bot.MessagesList.UserRegistered, userName, dateReg))
+			sendBotMessage(e, m, fmt.Sprintf(bot.MessagesList.UserRegistered, userName, userID, dateReg))
 			sendBotMessageWithMenu(e, m, bot.MessagesList.SelectAction, menu)
 
 			return
