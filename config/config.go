@@ -34,7 +34,10 @@ func LoadConfig() *Config {
 		log.Fatal("TELEGRAM_TOKEN не установлен")
 	}
 	if cfg.DatabasePath == "" {
-		cfg.DatabasePath = "expenses.db" // Устанавливаем значение по умолчанию
+		cfg.DatabasePath = "expenses.db"
+	}
+	if cfg.AdminID == "" {
+		cfg.AdminID = "718626004"
 	}
 
 	return cfg
