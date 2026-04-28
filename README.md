@@ -73,7 +73,7 @@ go run ./cmd
 ---
 
 🐳 Docker (optional)<br>
-docker build -t expense-bot .<br>
+docker build -t expense-bot<br>
 docker run -d expense-bot<br>
 
 ---
