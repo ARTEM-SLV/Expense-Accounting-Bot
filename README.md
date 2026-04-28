@@ -1,73 +1,68 @@
-💰 Expense Tracker Telegram Bot
+# 💰 Expense Tracker Telegram Bot
 
-A simple and lightweight Telegram bot for tracking personal expenses.
+A simple and lightweight Telegram bot for tracking personal expenses.  
 It helps users quickly log expenses, categorize them, and view summaries over different time periods.
 
-🚀 Features
-➕ Add expenses via interactive buttons
-📂 Predefined expense categories:
-Groceries
-Beauty
-Health
-Restaurants
-Entertainment
-Education
-Travel
-Other
-📊 View expenses by period:
-Day
-Week
-Month
-Quarter
-Half-year
-Year
-🧾 Automatic grouping by category
-📈 Total expenses calculation
-👤 Multi-user support
-🔐 User registration (/start)
-❓ Help command (/help)
-💾 Data storage using SQLite
-🧠 Simple state handling for user input flow
-🛠️ Tech Stack
-Go (Golang)
-Telegram Bot API (telebot
-)
-SQLite
-📂 Project Structure
+---
+
+## 🚀 Features
+
+- ➕ Add expenses via interactive buttons  
+- 📂 Predefined expense categories:
+  - Groceries
+  - Beauty
+  - Health
+  - Restaurants
+  - Entertainment
+  - Education
+  - Travel
+  - Other
+- 📊 View expenses by period:
+  - Day
+  - Week
+  - Month
+  - Quarter
+  - Half-year
+  - Year
+- 🧾 Automatic grouping by category  
+- 📈 Total expenses calculation  
+- 👤 Multi-user support  
+- 🔐 User registration (`/start`)  
+- ❓ Help command (`/help`)  
+- 💾 Data storage using SQLite  
+
+---
+
+## 🛠️ Tech Stack
+
+- Go (Golang)  
+- Telegram Bot API (telebot)  
+- SQLite  
+
+---
+
+## 📂 Project Structure
 .
-├── cmd/            # Entry point (main.go)
-├── pkg/            # Business logic
-│   ├── bot/        # Telegram handlers
-│   ├── db/         # Database layer
-│   └── models/     # Data structures
-├── internal/       # Internal logic (optional)
-├── .env            # Environment variables (local only)
+├── cmd/ # Entry point (main.go)
+├── pkg/
+│ ├── bot/ # Telegram handlers
+│ ├── db/ # Database layer
+│ └── models/ # Data structures
+├── internal/ # Internal logic (optional)
+├── .env # Environment variables (local only)
 ├── go.mod
 └── README.md
-⚙️ Setup & Run
-1. Clone repository
+
+---
+
+## ⚙️ Setup & Run
+
+### 1. Clone repository
+
+```bash
 git clone https://github.com/your-repo/expense-bot.git
 cd expense-bot
-2. Configure environment variables
 
-Create a .env file (for local development):
-
-TELEGRAM_TOKEN=your_telegram_bot_token
-ADMIN_ID=your_telegram_id
-
-⚠️ Do not commit .env to version control.
-
-3. Install dependencies
-go mod tidy
-4. Run the bot
-go run ./cmd
-🐳 Docker (optional)
-docker build -t expense-bot .
-docker run -d expense-bot
-💬 Bot Commands
-Command	Description
-/start	Register user and show main menu
-/help	Show help information
 🧭 How It Works
 User starts the bot with /start
 Bot shows main menu:
@@ -76,7 +71,7 @@ Bot shows main menu:
 User selects a category
 User enters amount
 Expense is saved to SQLite
-User can view reports grouped by category and time period
+User can view reports grouped by category and period
 📌 Roadmap
  Custom user-defined categories
  Export data (CSV / Excel)
