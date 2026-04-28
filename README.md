@@ -86,26 +86,22 @@ Command	Description
 ---
 
 🧭 How It Works
-User starts the bot with /start
-Bot shows main menu:
-"Add Expense"
-"My Expenses"
-User selects a category
-User enters amount
-Expense is saved to SQLite
-User can view reports grouped by category and period
-📌 Roadmap
- Custom user-defined categories
- Export data (CSV / Excel)
- Charts and analytics
- Notifications and daily reports
- Migration to PostgreSQL
- REST API
-🤝 Contributing
+User starts the bot with /start<br>
+Bot shows main menu:<br>
+"Add Expense"<br>
+"My Expenses"<br>
+User selects a category<br>
+User enters amount<br>
+Expense is saved to SQLite<br>
+User can view reports grouped by category and period<br>
+📌 Roadmap<br>
+ Custom user-defined categories<br>
+ Export data (CSV / Excel)<br>
+ Charts and analytics<br>
+ Notifications and daily reports<br>
+ Migration to PostgreSQL<br>
+ REST API<br>
+🤝 Contributing<br>
 
 Contributions are welcome!
 Feel free to open issues or submit pull requests.
-
-📄 License
-
-This project is licensed under the MIT License.
