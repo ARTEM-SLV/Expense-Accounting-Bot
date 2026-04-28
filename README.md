@@ -72,20 +72,20 @@ go run ./cmd
 
 ---
 
-🐳 Docker (optional)
-docker build -t expense-bot .
-docker run -d expense-bot
+🐳 Docker (optional)<br>
+docker build -t expense-bot .<br>
+docker run -d expense-bot<br>
 
 ---
 
-💬 Bot Commands
-Command	Description
-/start	Register user and show main menu
-/help	Show help information
+💬 Bot Commands<br>
+Command	Description<br>
+/start	Register user and show main menu<br>
+/help	Show help information<br>
 
 ---
 
-🧭 How It Works
+🧭 How It Works<br>
 User starts the bot with /start<br>
 Bot shows main menu:<br>
 "Add Expense"<br>
