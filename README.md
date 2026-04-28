@@ -1,4 +1,4 @@
-# 💰 Expense Tracker Telegram Bot
+# 💰 Expense Accounting Bot
 
 A simple and lightweight Telegram bot for tracking personal expenses.  
 It helps users quickly log expenses, categorize them, and view summaries over different time periods.
