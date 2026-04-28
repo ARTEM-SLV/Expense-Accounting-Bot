@@ -70,14 +70,20 @@ go mod tidy
 go run ./cmd
 ```
 
+---
+
 🐳 Docker (optional)
 docker build -t expense-bot .
 docker run -d expense-bot
+
+---
 
 💬 Bot Commands
 Command	Description
 /start	Register user and show main menu
 /help	Show help information
+
+---
 
 🧭 How It Works
 User starts the bot with /start
