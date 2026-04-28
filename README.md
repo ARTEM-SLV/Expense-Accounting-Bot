@@ -48,6 +48,7 @@ It helps users quickly log expenses, categorize them, and view summaries over di
 ```bash
 git clone https://github.com/your-repo/expense-bot.git
 cd expense-bot
+```
 
 ### 2. Configure environment variables
 
@@ -55,16 +56,19 @@ cd expense-bot
 Create a .env file (for local development):
 TELEGRAM_TOKEN=your_telegram_bot_token
 ADMIN_ID=your_telegram_id
+```
 
 ### 3. Install dependencies
 
 ```bash
 go mod tidy
+```
 
 ### 4. Run the bot
 
 ```bash
 go run ./cmd
+```
 
 🐳 Docker (optional)
 docker build -t expense-bot .
